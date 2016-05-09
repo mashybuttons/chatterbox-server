@@ -117,27 +117,27 @@ let app = {
 
 
   addMessage(message) {
-    if(message !== undefined){
-    let userText = escapeHtml(message.text);
-    let userName = escapeHtml(message.username);
+    if (message !== undefined) {
+      let userText = escapeHtml(message.text);
+      let userName = escapeHtml(message.username);
 
-    _.each(app.friends, friend =>{
-      if (friend === message.username) {
-        message.friend = 'friend';
-      } 
-    });
+      _.each(app.friends, friend =>{
+        if (friend === message.username) {
+          message.friend = 'friend';
+        } 
+      });
 
-    //Attaches class 'friend' to create bold/colored indicator if clicking on friend's username
-    if (userName && message.friend) {
-      $('#chats').prepend(`<div class='alert alert-success'><div class='username friend' data-username=${userName}>${userName}:</div><div class='texts'>
-        ${userText}</div></div>`);
-    
-    //Otherwise append div without the 'friend' class
-    } else if (userName && message.text) {
-      $('#chats').prepend(`<div class='alert alert-success'><div class='username' data-username=${userName}>${userName}:</div><div class='texts'>
-        ${userText}</div></div>`);
+      //Attaches class 'friend' to create bold/colored indicator if clicking on friend's username
+      if (userName && message.friend) {
+        $('#chats').prepend(`<div class='alert alert-success'><div class='username friend' data-username=${userName}>${userName}:</div><div class='texts'>
+          ${userText}</div></div>`);
+      
+      //Otherwise append div without the 'friend' class
+      } else if (userName && message.text) {
+        $('#chats').prepend(`<div class='alert alert-success'><div class='username' data-username=${userName}>${userName}:</div><div class='texts'>
+          ${userText}</div></div>`);
+      }
     }
-  }
   },
 
 

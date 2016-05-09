@@ -13,7 +13,7 @@ this file and include it in basic-server.js so that it actually works.
 **************************************************************/
 
 var http = require('http');
-var messages = {results: []}
+var messages = {results: []};
 exports.requestHandler = function(request, response) {
   // Request and Response come from node's http module.
   //

@@ -5,71 +5,85 @@ var messages = require('./messages.js');
 var express = require('express');
 var path = require('path');
 var fs = require('fs');
+
+var cluster = require('cluster'); 
+var numCPUs = require('os').cpus().length;
+
 var app = express();
 var messages = {result: []};
 //console.log(__dirname)
 
-app.use(express.static(path.join(__dirname, '../client')));
-var port = 3000;
+if (cluster.isMaster) {
+  // Fork workers.
+  for (var i = 0; i < numCPUs; i++) {
+    cluster.fork();
+  }
 
-var ip = '127.0.0.1';
-
-
-//====================================================================
-//EXPRESS
-app.get('/', function(req, res) {
-  res.sendFile(path.resolve('client/index.html'));
-});
-
-app.get('/classes/messages', function(req, res) {
-  fs.readFile(__dirname + '/messages.txt', 'utf-8', function(err, data) {
-    if (err) {
-      console.log('error');
-    } else {
-      var split = data.trim().split('\n')
-        .map(function(value) {
-          return JSON.parse(value);
-        });
-
-      res.send(JSON.stringify({result: split.reverse()}));
-
-    }
+  cluster.on('exit', (worker, code, signal) => {
+    console.log(`worker ${worker.process.pid} died`);
   });
-});
+} else {
+  app.use(express.static(path.join(__dirname, '../client')));
+  var port = 3000;
 
-app.post('/classes/messages', function(req, res) {
-  var parsedmessage;
-  
-  req.on('data', function(message) {
+  var ip = '127.0.0.1';
+
+
+  //====================================================================
+  //EXPRESS
+  app.get('/', function(req, res) {
+    res.sendFile(path.resolve('client/index.html'));
+  });
+
+  app.get('/classes/messages', function(req, res) {
+    fs.readFile(__dirname + '/messages.txt', 'utf-8', function(err, data) {
+      if (err) {
+        console.log('error');
+      } else {
+        var split = data.trim().split('\n')
+          .map(function(value) {
+            return JSON.parse(value);
+          });
+
+        res.send(JSON.stringify({result: split.reverse()}));
+
+      }
+    });
+  });
+
+  app.post('/classes/messages', function(req, res) {
+    var parsedmessage;
     
-    parsedmessage = JSON.parse(message);
-    messages.result.push(parsedmessage);
-    fs.appendFile(__dirname + '/messages.txt', JSON.stringify(parsedmessage) + '\n', function(err) {
-      console.log(err);
+    req.on('data', function(message) {
+      
+      parsedmessage = JSON.parse(message);
+      messages.result.push(parsedmessage);
+      fs.appendFile(__dirname + '/messages.txt', JSON.stringify(parsedmessage) + '\n', function(err) {
+        console.log(err);
+      });
+
+    });
+
+    req.on('end', function() {
+      res.send(JSON.stringify(messages.result));
     });
 
   });
 
-  req.on('end', function() {
-    res.send(JSON.stringify(messages.result));
+  app.get('*', function(req, res, next) {
+    var err = new Error();
+    err.status = 404;
+    // next(err);
+    res.send('BAD ERROR 404');
   });
 
-});
 
-app.get('*', function(req, res, next) {
-  var err = new Error();
-  err.status = 404;
-  // next(err);
-  res.send('BAD ERROR 404');
-});
+
+  app.listen(port, ip);
 
 
 
-app.listen(port, ip);
-
-
-
-
+}
 
 
 //============== HTTP stuff ==============================

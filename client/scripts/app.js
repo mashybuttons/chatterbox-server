@@ -36,8 +36,10 @@ let app = {
      // data: {order: '-createdAt'},
       dataType: 'json',
       success(data) {
-        console.log('success:', data);
-        callback(data.results, optionalStr);
+       console.log('success:', data);
+  //      console.lSON.parse(data));
+        //data = JSON.parse(data.result);
+        callback(data.result, optionalStr);
       }
     });
   },

@@ -14,8 +14,8 @@ this file and include it in basic-server.js so that it actually works.
 
 var http = require('http');
 var fs = require('fs');
-//var messages = require('./messages.js')
-var messages = {results: []};
+//var messagesLog = require('./messages.js')
+var messages = {result: []};
 
 exports.requestHandler = function(request, response) {
   // Request and Response come from node's http module.
@@ -69,22 +69,50 @@ exports.requestHandler = function(request, response) {
       statusCode = 200;
       headers['Content-Type'] = 'text/json';
       response.writeHead(statusCode, headers);
-      response.end(JSON.stringify(messages));
+      // response.end(JSON.stringify(messages);
+      
+      fs.readFile(__dirname + '/messages.txt', 'utf-8', function(err, data) {
+        if (err) {
+          console.log('error');
+        } else {
+          // response.end(JSON.stringify(TXT))
+         // data = data.slice(0, data.length - 1);
+        //  console.log('type:', typeof data);
+          // console.log('\nmessages:', JSON.stringify(messages) + '\n');
+          // console.log('\n' + data + ']}' + '\n');
+          // console.log(JSON.stringify(messages) === data + ']}');
+          var split = data.trim().split('\n')
+            .map(function(value) {
+              console.log('value', value);
+              console.log('parsed', JSON.parse(value));
+              return JSON.parse(value);
+            });
+
+          response.end(JSON.stringify({result: split}));
+
+          //response.end(JSON.stringify(data + ']}'));
+        }
+      });
 
     } else if (request.method === 'POST') {
       var parsedmessage;
       request.on('data', function(message) {
         parsedmessage = JSON.parse(message);
-        messages.results.push(parsedmessage);
+        console.log('IS THIS AN OBJ', parsedmessage);
+        messages.result.push(parsedmessage);
+        fs.appendFile(__dirname + '/messages.txt', JSON.stringify(parsedmessage) + '\n', function(err) {
+          console.log(err);
+        });
+
       });
 
       request.on('end', function() {
         statusCode = 201;
         headers['Content-Type'] = 'text/json';
         response.writeHead(statusCode, headers);
-        //response.text = 'hello';
-        console.log('messages: dsfasdf', messages);
-        response.end(JSON.stringify(messages.results));
+        console.log('message.rseults', messages.result);
+        response.end(JSON.stringify(messages.result));
+
       });
      
     }

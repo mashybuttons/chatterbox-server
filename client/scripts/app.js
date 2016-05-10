@@ -36,6 +36,7 @@ let app = {
      // data: {order: '-createdAt'},
       dataType: 'json',
       success(data) {
+        console.log('success:', data);
         callback(data.results, optionalStr);
       }
     });

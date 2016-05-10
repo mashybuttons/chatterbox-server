@@ -13,7 +13,10 @@ this file and include it in basic-server.js so that it actually works.
 **************************************************************/
 
 var http = require('http');
+var fs = require('fs');
+//var messages = require('./messages.js')
 var messages = {results: []};
+
 exports.requestHandler = function(request, response) {
   // Request and Response come from node's http module.
   //
@@ -56,6 +59,9 @@ exports.requestHandler = function(request, response) {
   // Calling .end "flushes" the response's internal buffer, forcing
   // node to actually send all the data over to the client.
   var statusCode = 404;
+  var basePath = "http://127.0.0.1:3000";
+  var filePath = '.' + request.url;
+  //console.log(filePath, basePath);
 
   if (request.url === '/classes/messages') {
     if (request.method === 'GET') {
@@ -65,10 +71,8 @@ exports.requestHandler = function(request, response) {
       response.writeHead(statusCode, headers);
       response.end(JSON.stringify(messages));
 
-    }
-    if (request.method === 'POST') {
+    } else if (request.method === 'POST') {
       var parsedmessage;
-      console.log(request.url, 'in the post request');
       request.on('data', function(message) {
         parsedmessage = JSON.parse(message);
         messages.results.push(parsedmessage);
@@ -78,15 +82,76 @@ exports.requestHandler = function(request, response) {
         statusCode = 201;
         headers['Content-Type'] = 'text/json';
         response.writeHead(statusCode, headers);
-        response.text = 'hello';
+        //response.text = 'hello';
+        console.log('messages: dsfasdf', messages);
         response.end(JSON.stringify(messages.results));
       });
      
     }
+
+  } else if (filePath === './') {
+    filePath = './client/index.html';
+
+    fs.readFile(filePath, function(error, content) {
+      if (error) {
+        response.writeHead(500);
+        response.end();
+      } else {
+        response.writeHead(200, {'Content-Type': 'text/html'});
+        response.end(content, 'utf-8');
+      }
+    });
+    
+  } else if (filePath === './styles/styles.css') {
+
+    fs.readFile('./client/styles/styles.css', function(error, content) {
+      if (error) {
+        response.writeHead(500);
+        response.end();
+      } else {
+        response.writeHead(200, {'Content-Type': 'text/css'});
+        response.end(content, 'utf-8');
+      }
+    });
+
+  } else if (filePath === './scripts/app.js') {
+
+    fs.readFile('./client/scripts/app.js', function(error, content) {
+      if (error) {
+        response.writeHead(500);
+        response.end();
+      } else {
+        response.writeHead(200, {'Content-Type': 'text/javascript'});
+        response.end(content, 'utf-8');
+      }
+    });
+  } else if (filePath === './bower_components/underscore/underscore-min.js') {
+
+    fs.readFile('./client/bower_components/underscore/underscore-min.js', function(error, content) {
+      if (error) {
+        response.writeHead(500);
+        response.end();
+      } else {
+        response.writeHead(200, {'Content-Type': 'text/javascript'});
+        response.end(content, 'utf-8');
+      }
+    });
+  } else if (filePath === './bower_components/jquery/dist/jquery.js') {
+
+    fs.readFile('./client/bower_components/jquery/dist/jquery.js', function(error, content) {
+      if (error) {
+        response.writeHead(500);
+        response.end();
+      } else {
+        response.writeHead(200, {'Content-Type': 'text/javascript'});
+        response.end(content, 'utf-8');
+      }
+    });
   } else {
     response.writeHead(404, headers);
     response.end();
   } 
+
 
 };
 

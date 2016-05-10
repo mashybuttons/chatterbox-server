@@ -61,6 +61,7 @@ exports.requestHandler = function(request, response) {
   var statusCode = 404;
   var basePath = "http://127.0.0.1:3000";
   var filePath = '.' + request.url;
+//  var filePath = request.url;
   //console.log(filePath, basePath);
 
   if (request.url === '/classes/messages') {
@@ -130,9 +131,10 @@ exports.requestHandler = function(request, response) {
       }
     });
     
-  } else if (filePath === './styles/styles.css') {
-
-    fs.readFile('./client/styles/styles.css', function(error, content) {
+  } else if (filePath.split('.')[2] === 'css') {
+    //console.log('hihihihi');
+    console.log('filePath', filePath);
+    fs.readFile('./client' + filePath.slice(1), function(error, content) {
       if (error) {
         response.writeHead(500);
         response.end();
@@ -142,9 +144,9 @@ exports.requestHandler = function(request, response) {
       }
     });
 
-  } else if (filePath === './scripts/app.js') {
+  } else if (filePath.split('.')[2] === 'js' || 'ttf') {
 
-    fs.readFile('./client/scripts/app.js', function(error, content) {
+    fs.readFile('./client' + filePath.slice(1), function(error, content) {
       if (error) {
         response.writeHead(500);
         response.end();
@@ -153,28 +155,7 @@ exports.requestHandler = function(request, response) {
         response.end(content, 'utf-8');
       }
     });
-  } else if (filePath === './bower_components/underscore/underscore-min.js') {
 
-    fs.readFile('./client/bower_components/underscore/underscore-min.js', function(error, content) {
-      if (error) {
-        response.writeHead(500);
-        response.end();
-      } else {
-        response.writeHead(200, {'Content-Type': 'text/javascript'});
-        response.end(content, 'utf-8');
-      }
-    });
-  } else if (filePath === './bower_components/jquery/dist/jquery.js') {
-
-    fs.readFile('./client/bower_components/jquery/dist/jquery.js', function(error, content) {
-      if (error) {
-        response.writeHead(500);
-        response.end();
-      } else {
-        response.writeHead(200, {'Content-Type': 'text/javascript'});
-        response.end(content, 'utf-8');
-      }
-    });
   } else {
     response.writeHead(404, headers);
     response.end();

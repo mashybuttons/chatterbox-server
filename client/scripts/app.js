@@ -181,7 +181,7 @@ $(document).ready(() => {
     let selectedRoom = $('#roomSelect :selected').val();
 
     app.fetch(app.filterRoom, selectedRoom);
-  }, 1000);
+  }, 5000);
 
 });
 //button on click(this, addFreind())

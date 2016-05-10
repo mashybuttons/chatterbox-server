@@ -35,6 +35,7 @@ exports.requestHandler = function(request, response) {
 
   console.log('Serving request type ' + request.method + ' for url ' + request.url);
 
+
   // The outgoing status.
   // var statusCode;// = 200;
 
@@ -59,7 +60,7 @@ exports.requestHandler = function(request, response) {
   // Calling .end "flushes" the response's internal buffer, forcing
   // node to actually send all the data over to the client.
   var statusCode = 404;
-  var basePath = "http://127.0.0.1:3000";
+  var basePath = 'http://127.0.0.1:3000';
   var filePath = '.' + request.url;
 //  var filePath = request.url;
   //console.log(filePath, basePath);
@@ -72,6 +73,8 @@ exports.requestHandler = function(request, response) {
       response.writeHead(statusCode, headers);
       // response.end(JSON.stringify(messages);
       
+
+
       fs.readFile(__dirname + '/messages.txt', 'utf-8', function(err, data) {
         if (err) {
           console.log('error');
@@ -84,8 +87,8 @@ exports.requestHandler = function(request, response) {
           // console.log(JSON.stringify(messages) === data + ']}');
           var split = data.trim().split('\n')
             .map(function(value) {
-              console.log('value', value);
-              console.log('parsed', JSON.parse(value));
+             // console.log('value', value);
+              //console.log('parsed', JSON.parse(value));
               return JSON.parse(value);
             });
 
@@ -97,9 +100,11 @@ exports.requestHandler = function(request, response) {
 
     } else if (request.method === 'POST') {
       var parsedmessage;
+
       request.on('data', function(message) {
+        
         parsedmessage = JSON.parse(message);
-        console.log('IS THIS AN OBJ', parsedmessage);
+        //console.log('IS THIS AN OBJ', parsedmessage);
         messages.result.push(parsedmessage);
         fs.appendFile(__dirname + '/messages.txt', JSON.stringify(parsedmessage) + '\n', function(err) {
           console.log(err);

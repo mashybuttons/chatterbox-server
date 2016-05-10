@@ -2,30 +2,82 @@
 var http = require('http');
 var handleRequest = require('./request-handler.js');
 var messages = require('./messages.js');
+var express = require('express');
+var path = require('path');
+var fs = require('fs');
+var app = express();
+var messages = {result: []};
+//console.log(__dirname)
 
-// Every server needs to listen on a port with a unique number. The
-// standard port for HTTP servers is port 80, but that port is
-// normally already claimed by another server and/or not accessible
-// so we'll use a standard testing port like 3000, other common development
-// ports are 8080 and 1337.
+app.use(express.static(path.join(__dirname, '../client')));
 var port = 3000;
 
-// For now, since you're running this server on your local machine,
-// we'll have it listen on the IP address 127.0.0.1, which is a
-// special address that always refers to localhost.
 var ip = '127.0.0.1';
 
 
+//====================================================================
+//EXPRESS
+app.get('/', function(req, res) {
+  res.sendFile(path.resolve('client/index.html'));
+});
 
-// We use node's http module to create a server.
-//
-// The function we pass to http.createServer will be used to handle all
-// incoming requests.
-//
-// After creating the server, we will tell it to listen on the given port and IP. */
-var server = http.createServer(handleRequest.requestHandler);
-console.log('Listening on http://' + ip + ':' + port);
-server.listen(port, ip);
+app.get('/classes/messages', function(req, res) {
+  fs.readFile(__dirname + '/messages.txt', 'utf-8', function(err, data) {
+    if (err) {
+      console.log('error');
+    } else {
+      var split = data.trim().split('\n')
+        .map(function(value) {
+          return JSON.parse(value);
+        });
+
+      res.send(JSON.stringify({result: split.reverse()}));
+
+    }
+  });
+});
+
+app.post('/classes/messages', function(req, res) {
+  var parsedmessage;
+  
+  req.on('data', function(message) {
+    
+    parsedmessage = JSON.parse(message);
+    messages.result.push(parsedmessage);
+    fs.appendFile(__dirname + '/messages.txt', JSON.stringify(parsedmessage) + '\n', function(err) {
+      console.log(err);
+    });
+
+  });
+
+  req.on('end', function() {
+    res.send(JSON.stringify(messages.result));
+  });
+
+});
+
+app.get('*', function(req, res, next) {
+  var err = new Error();
+  err.status = 404;
+  // next(err);
+  res.send('BAD ERROR 404');
+});
+
+
+
+app.listen(port, ip);
+
+
+
+
+
+
+//============== HTTP stuff ==============================
+// var server = http.createServer(handleRequest.requestHandler);
+// console.log('Listening on http://' + ip + ':' + port);
+// server.listen(port, ip);
+
+
 
 // To start this server, run:
 //
